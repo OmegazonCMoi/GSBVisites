@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EditText
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/input_username"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:hint="Entrer un identifiant..."
+    android:textColorHint="#666666"
+    android:background="@drawable/input_background"
+    android:padding="10dp"
+    android:paddingStart="50dp"
+    android:textSize="16sp"/>
