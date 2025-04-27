@@ -1,10 +1,10 @@
-# Dossier Technique – Projet Android GSB Frais
+# Dossier Technique – Projet Android GSB Frais : Gestion des Visites, Praticiens, et Motifs
 
 **Session BTS SIO 2025 – Épreuve E6 : Conception et développement d’applications (option SLAM)**  
 **Développeur : Menoni Fabian**  
 **Modalité : Individuelle**  
 **Période de réalisation : Septembre 2024 – Avril 2025**  
-**Environnement : Java, Android Studio, Retrofit, MySQL, Material Design**  
+**Environnement : Java, Android Studio, API Express, MySQL, Retrofit, Material Design**  
 
 ---
 
@@ -12,11 +12,12 @@
 1. [Présentation Générale du Projet](#1-présentation-générale-du-projet)
 2. [Description de l’Architecture Technique](#2-description-de-larchitecture-technique)
    - 2.1. [Structure du Projet](#21-structure-du-projet)
-3. [Détail des Fonctionnalités](#3-détail-des-fonctionnalités)
-   - 3.1. [Saisie et Gestion des Frais](#31-saisie-et-gestion-des-frais)
-   - 3.2. [Interface Administrateur et Statistiques](#32-interface-administrateur-et-statistiques)
-4. [Analyse Approfondie des Activités](#4-analyse-approfondie-des-activités)
-5. [Organisation du Code et des Composants](#5-organisation-du-code-et-des-composants)
+3. [Gestion des Visites, Praticiens, et Motifs](#3-gestion-des-visites-praticiens-et-motifs)
+   - 3.1. [Gestion des Visites](#31-gestion-des-visites)
+   - 3.2. [Gestion des Praticiens](#32-gestion-des-praticiens)
+   - 3.3. [Gestion des Motifs](#33-gestion-des-motifs)
+4. [Analyse Approfondie des Composants](#4-analyse-approfondie-des-composants)
+5. [Organisation du Code et des Templates](#5-organisation-du-code-et-des-templates)
 6. [Maintenance et Évolutivité](#6-maintenance-et-évolutivité)
 7. [Commentaires et Documentation Interne](#7-commentaires-et-documentation-interne)
 8. [Conclusion et Perspectives d’Évolution](#8-conclusion-et-perspectives-dévolution)
@@ -25,15 +26,12 @@
 
 ## 1. Présentation Générale du Projet
 
-Le projet **GSB Frais Android** a pour objectif de créer une application mobile Android permettant aux utilisateurs de saisir, consulter et gérer leurs frais professionnels.
+Le projet **GSB Frais** est une application Android permettant de gérer les visites professionnelles effectuées par des visiteurs chez des praticiens. L'application permet aux utilisateurs de saisir des visites, consulter les praticiens disponibles, et gérer les motifs de leurs visites. Elle communique avec une **API Express** qui se charge de l’accès aux données stockées dans une base **MySQL**.
 
-Les principaux objectifs sont :
-
-- **Conception et développement** : Créer une interface mobile intuitive permettant de saisir des frais, de consulter l'historique des frais et de gérer les frais.
-- **Maintenance** : Utiliser une architecture modulaire pour faciliter l’évolution de l’application et la correction des erreurs.
-- **Sécurité des données** : Garantir la protection des données personnelles avec l’utilisation de Firebase pour le backend, et un stockage local sécurisé via SQLite.
-
-L'application Android est développée avec **Android Studio** en utilisant **Kotlin** (ou Java), **Firebase** pour la gestion des données à distance et **SQLite** pour le stockage local. **Material Design** est utilisé pour assurer une interface moderne et responsive.
+Les principaux objectifs de l'application sont les suivants :
+- **Gestion des visites** : Permettre aux visiteurs de saisir des visites, de consulter et modifier les informations liées aux visites passées.
+- **Consultation des praticiens et motifs** : Permettre aux utilisateurs de consulter la liste des praticiens disponibles et des motifs de visites proposés.
+- **Interaction avec une API Express** : L'application interagit avec une API Express qui gère les requêtes vers la base de données MySQL.
 
 ---
 
@@ -41,94 +39,99 @@ L'application Android est développée avec **Android Studio** en utilisant **Ko
 
 ### 2.1. Structure du Projet
 
-La structure du projet suit les bonnes pratiques d'architecture Android, en adoptant une approche **MVVM (Model-View-ViewModel)** avec des composants comme **LiveData** et **ViewModel** pour gérer la logique de l'UI de manière asynchrone.
+L'architecture du projet Android repose sur **Java/Kotlin** avec **Android Studio** pour le développement mobile. Le backend de l'application est une API RESTful développée avec **Express.js**, qui interagit avec une base de données **MySQL**. La communication entre l'application Android et l'API Express se fait via la bibliothèque **Retrofit**.
 
-- **/src**  
-  Contient le code source de l’application, organisé par packages.
-  - **activity/** : Contient les activités qui gèrent les interactions avec l'utilisateur.
-  - **model/** : Contient les classes modèles, telles que `Frais`, `Utilisateur`, etc.
-  - **viewmodel/** : Contient les classes `ViewModel` qui gèrent la logique métier de l’application.
-  - **repository/** : Contient les classes pour la gestion des données locales (SQLite) et distantes (Firebase).
+#### Structure de l’application Android :
+
+- **/gsbofficiel**  
+  Contient le code métier et les composants Android.
+  - **/api** : Contient les classes qui gèrent la communication avec l'API Express (utilisation de Retrofit pour envoyer des requêtes HTTP).
 
 - **/res**  
-  Contient les ressources de l’application.
-  - **layout/** : Contient les fichiers XML pour les interfaces utilisateur.
-  - **values/** : Contient les chaînes de caractères et autres valeurs définies dans l’application.
-  - **drawable/** : Contient les ressources graphiques et icônes.
+  Contient les ressources de l'application (layout XML, strings, images, etc.).
 
-- **/config**  
-  Contient les fichiers de configuration Firebase et autres services.
+#### Structure de l’API Express :
 
-- **/assets**  
-  Contient les fichiers statiques comme les polices ou images personnalisées.
+- **/models** : Contient les modèles Mongoose pour chaque entité (Visite, Visiteur, Praticien, Motif).
+- **/routes** : Contient les routes qui définissent les différentes API pour la gestion des visites, praticiens, et motifs.
+- **/controllers** : Contient la logique métier pour chaque route.
 
 ---
 
-## 3. Détail des Fonctionnalités
+## 3. Gestion des Visites, Praticiens, et Motifs
 
-### 3.1. Saisie et Gestion des Frais
+### 3.1. Gestion des Visites
 
-- **Saisie des Frais** :  
-  Formulaire avec validation des données et possibilité d’ajouter des frais pour des activités spécifiques. Utilisation de **RecyclerView** pour afficher les frais en liste. Validation des données effectuée côté client et côté serveur.
-
-- **Consultation et Édition** :  
-  Liste des frais saisie par l’utilisateur. Possibilité d’édition ou de suppression des frais à tout moment via un menu contextuel.
-
-- **Traitement et Calcul** :  
-  Calcul automatique du total des frais avec gestion des différentes catégories (transport, repas, hébergement, etc.).
-
-### 3.2. Interface Administrateur et Statistiques
-
-- **Mécanismes de Validation** :  
-  Les administrateurs peuvent valider ou rejeter des frais via une interface dédiée.
+- **Modèle Visite** :  
+  Le modèle Visite représente une visite effectuée par un visiteur chez un praticien. Il contient des informations telles que la date de la visite, les commentaires associés, le praticien concerné, et le motif de la visite.
   
-- **Statistiques** :  
-  Les administrateurs peuvent consulter des statistiques sur les frais, tels que le total des dépenses par utilisateur, par catégorie, etc.
+  La classe `Visite` contient les informations suivantes :
+  - **id** : Identifiant unique de la visite.
+  - **dateVisite** : Date et heure de la visite.
+  - **commentaire** : Commentaires liés à la visite.
+  - **visiteur** : Visiteur ayant effectué la visite.
+  - **praticien** : Praticien concerné.
+  - **motif** : Motif de la visite.
+
+  Le modèle **Visite** en **Java/Kotlin** utilise Retrofit pour envoyer et recevoir des données via l'API Express.
+
+- **Interaction avec l'API Express** :  
+  Les données des visites sont envoyées à l'API Express via des requêtes HTTP POST pour la création, GET pour la consultation, PUT pour la mise à jour et DELETE pour la suppression.
+
+  Exemple de requête POST pour créer une visite :
+  ```java
+  @POST("visites")
+  Call<Void> createVisite(@Header("Authorization") String token, @Body Map<String, Object> visite);
+  ```
+
+### 3.2. Gestion des Praticiens
+
+- **Modèle Praticien** :  
+  Le modèle Praticien contient des informations sur chaque praticien, comme son nom, sa spécialité, et son identifiant unique.  
+  Les données des praticiens sont récupérées via une requête GET à l'API Express.
+
+  Exemple de requête GET pour récupérer les praticiens :
+  ```java
+  @GET("praticiens")
+  Call<List<Praticien>> getPraticiens(@Header("Authorization") String token);
+  ```
+
+### 3.3. Gestion des Motifs
+
+- **Modèle Motif** :  
+  Le modèle Motif contient des informations sur les motifs de visites. Un motif peut être associé à une ou plusieurs visites.  
+  Les motifs sont récupérés via une requête GET à l'API Express.
+
+  Exemple de requête GET pour récupérer les motifs :
+  ```java
+  @GET("motifs")
+  Call<List<Motif>> getMotifs(@Header("Authorization") String token);
+  ```
 
 ---
 
-## 4. Analyse Approfondie des Activités
+## 4. Analyse Approfondie des Composants
 
-Les activités dans Android sont responsables de l’interface utilisateur et de la gestion des interactions utilisateur.
+Les principaux composants de l’application Android sont :
 
-- **Réception des Intentions** :  
-  Chaque activité réagit à des actions (clics de boutons, changements de formulaire) en utilisant des **Intent** pour passer d’une activité à une autre.
+- **Les Activités et Fragments** :  
+  Chaque écran de l’application (par exemple, écran de création d’une visite, liste des praticiens, etc.) est géré par une activité ou un fragment. Ces composants interagissent avec l'API pour afficher et envoyer les données.
 
-- **Gestion des Données** :  
-  Les `ViewModel` gèrent la logique métier en récupérant les données du **Repository**, qui interagit avec Firebase et SQLite.
+- **Les Modèles de Données** :  
+  Chaque entité (Visite, Praticien, Motif, etc.) est représentée par un modèle de données en Java/Kotlin, facilitant la sérialisation et la désérialisation des objets entre l'application et l'API.
 
-- **Rendu des Réponses** :  
-  Les activités récupèrent les données via **LiveData** et mettent à jour l’UI de manière réactive lorsque les données sont disponibles.
+- **Retrofit** :  
+  La bibliothèque Retrofit est utilisée pour gérer les requêtes HTTP entre l’application et l’API Express. Elle simplifie le traitement des réponses JSON et la gestion des erreurs.
 
 ---
 
-## 5. Organisation du Code et des Composants
+## 5. Organisation du Code et des Templates
 
-### 5.1. Dossier **/src**
-
-- **Activités (/src/activity/)** :  
-  Chaque activité est responsable d’une vue spécifique. Les interactions de l’utilisateur (clics, saisie) sont traitées dans ces activités.
-  
-- **Modèles (/src/model/)** :  
-  Les classes modèles représentent les objets métiers, comme `Frais`, `Utilisateur`, etc. Ces classes sont utilisées pour gérer les données en interaction avec la base de données locale ou distante.
-
-- **ViewModels (/src/viewmodel/)** :  
-  Les `ViewModel` sont responsables de la logique métier, gérant l’accès aux données via les **LiveData** pour une interface réactive.
-
-- **Repositories (/src/repository/)** :  
-  Les repositories sont chargés de l’accès aux données locales et distantes. Par exemple, un `FraisRepository` qui récupère les frais depuis Firebase ou SQLite.
-
-### 5.2. Dossier **/res**
-
-- **Layouts (/res/layout/)** :  
-  Contient les fichiers XML pour définir les interfaces des activités.  
-  *Exemple :* `activity_main.xml` pour l’écran principal et `activity_add_frais.xml` pour le formulaire de saisie.
-
-- **Values (/res/values/)** :  
-  Contient des fichiers comme `strings.xml`, `colors.xml`, et `styles.xml` pour gérer les chaînes de caractères, couleurs et styles de l’application.
-
-- **Drawable (/res/drawable/)** :  
-  Contient les icônes et images utilisées dans l’application.
+Le code est organisé de manière modulaire, chaque partie ayant sa propre responsabilité :
+- **Activités et Fragments** pour la présentation des données à l'utilisateur.
+- **Services API** pour la gestion des appels à l’API Express.
+- **Modèles de données** pour la gestion des objets Visite, Praticien, Motif, etc.
+- **Utilitaires** pour la gestion des erreurs et des données (formatage des dates, gestion des préférences utilisateurs, etc.).
 
 ---
 
@@ -136,46 +139,29 @@ Les activités dans Android sont responsables de l’interface utilisateur et de
 
 ### 6.1. Maintenance Corrective
 
-- **Tests :**  
-  Des tests unitaires et instrumentés sont effectués pour garantir que chaque fonctionnalité fonctionne correctement. **JUnit** et **Espresso** sont utilisés pour tester la logique et l’interface.
+- **Tests unitaires** :  
+  Mise en place de tests unitaires pour valider la logique métier et la communication avec l'API.
 
-- **Débogage :**  
-  Utilisation de **Android Studio Debugger** pour identifier et résoudre les problèmes. Les **logs Logcat** aident à diagnostiquer les erreurs.
-
-- **Suivi des Bugs :**  
-  Utilisation de **GitHub Issues** pour la gestion des bugs et des demandes de fonctionnalités.
+- **Suivi des erreurs** :  
+  Utilisation de la bibliothèque **Crashlytics** ou des outils de log pour suivre les erreurs en production.
 
 ### 6.2. Maintenance Évolutive
 
-- **Extensibilité :**  
-  L’application est conçue pour être facilement évolutive, avec une architecture modulaire (MVVM), permettant l’ajout facile de nouvelles fonctionnalités (ex. exportation de données, ajout de nouveaux frais).
-
-- **Mises à jour de sécurité :**  
-  Surveillance régulière des mises à jour de sécurité pour l'API, MySQL, et les bibliothèques tierces utilisées dans l’application.
+- **Ajout de nouvelles fonctionnalités** :  
+  Le code est conçu pour être facilement extensible, permettant l’ajout de nouvelles fonctionnalités (par exemple, gestion des utilisateurs, notifications, etc.).
 
 ---
 
 ## 7. Commentaires et Documentation Interne
 
-- **Commentaires dans le Code :**  
-  Chaque méthode critique est commentée, expliquant son rôle, ses paramètres et son comportement.
-
-- **Documentation Automatique :**  
-  Des outils comme **KDoc** sont utilisés pour générer la documentation à partir des commentaires dans le code.
-
-- **Fichiers README :**  
-  Un fichier README est présent dans chaque dossier important pour expliquer sa structure et son rôle dans le projet.
+Chaque méthode et classe est documentée avec des commentaires clairs et précis pour faciliter la maintenance et l’évolution du code.
 
 ---
 
 ## 8. Conclusion et Perspectives d’Évolution
 
-Le dossier technique offre une vue d’ensemble complète du projet **GSB Frais Android**. Il décrit l’architecture, les composants du code, et la gestion des fonctionnalités de l’application. Cette documentation permet à un autre développeur de maintenir et d’évoluer l’application.
-
-**Perspectives d’évolution :**
-- **Ajout d’un module API** pour intégrer l’application avec un backend externe.
-- **Amélioration de la sécurité** avec l’ajout de fonctionnalités de chiffrement pour les données locales.
-- **Ajout de notifications push** via Firebase Cloud Messaging (FCM).
+Ce dossier technique décrit l’architecture et les principaux composants du projet Android **GSB Frais**, qui permet de gérer les visites professionnelles, les praticiens, et les motifs via une application mobile connectée à une API Express et une base de données MySQL.  
+Les perspectives d’évolution incluent l’ajout de nouvelles fonctionnalités telles que la gestion des utilisateurs et l’intégration avec d’autres services.
 
 ---
 
