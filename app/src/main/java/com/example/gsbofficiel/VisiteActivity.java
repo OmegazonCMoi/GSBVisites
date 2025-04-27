@@ -19,6 +19,8 @@ import com.example.gsbofficiel.api.Visite;
 import com.example.gsbofficiel.api.VisiteAdapter;
 import com.example.gsbofficiel.api.Visiteur;
 
+import java.util.Arrays;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -76,7 +78,12 @@ public class VisiteActivity extends AppCompatActivity {
             public void onResponse(Call<Visite[]> call, Response<Visite[]> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Visite[] visites = response.body();
-                    VisiteAdapter adapter = new VisiteAdapter(visites);
+                    VisiteAdapter adapter = new VisiteAdapter(Arrays.asList(visites), visite -> {
+                        Intent intent = new Intent(VisiteActivity.this, DetailsVisiteActivity.class);
+                        intent.putExtra("visiteId", visite.getId());
+                        intent.putExtra("token", token);
+                        startActivity(intent);
+                    });
                     recyclerViewVisites.setAdapter(adapter);
                 } else {
                     Toast.makeText(VisiteActivity.this, "Erreur de récupération des visites", Toast.LENGTH_SHORT).show();

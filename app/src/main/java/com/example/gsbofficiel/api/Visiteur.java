@@ -3,6 +3,10 @@ package com.example.gsbofficiel.api;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class Visiteur implements Serializable {
     @SerializedName("userId")
@@ -23,6 +27,7 @@ public class Visiteur implements Serializable {
     private String token;
     @SerializedName("visites")
     private Visite visites[];
+    private Praticien[] portefeuillePraticiens;
     public Visiteur(String id, String nom, String prenom, String email, String password, String telephone, String token) {
         this.id = id;
         this.nom = nom;
@@ -31,6 +36,11 @@ public class Visiteur implements Serializable {
         this.telephone = telephone;
         this.token = token;
     }
+
+    public Visiteur() {
+
+    }
+
     public String getId() {
         return id;
     }
@@ -60,5 +70,11 @@ public class Visiteur implements Serializable {
 
     public String getToken() {
         return token;
+    }
+
+    public void chargerPortefeuille(Callback<Praticien[]> callback) {
+        ApiService apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiService.class);
+        Call<Praticien[]> call = apiService.getPortefeuillePraticiens(this.id, "Bearer " + this.token);
+        call.enqueue(callback);
     }
 }

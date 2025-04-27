@@ -1,13 +1,21 @@
 package com.example.gsbofficiel.api;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class Praticien {
 
-    private Long id;
+    @SerializedName("_id")
+    private String id;
 
+    @SerializedName("nom")
     private String nom;
+
+    @SerializedName("prenom")
     private String prenom;
+
+    @SerializedName("tel")
     private String tel;
 
     private String email;
@@ -32,11 +40,11 @@ public class Praticien {
     }
 
     // Getters et Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -103,4 +111,5 @@ public class Praticien {
     public void setVisites(List<Visite> visites) {
         this.visites = visites;
     }
+
 }

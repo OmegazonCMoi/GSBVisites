@@ -10,41 +10,52 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gsbofficiel.R;
 
-public class VisiteAdapter extends RecyclerView.Adapter<VisiteAdapter.VisiteViewHolder> {
+import java.util.List;
 
-    private final Visite[] visites;
+public class VisiteAdapter extends RecyclerView.Adapter<VisiteAdapter.ViewHolder> {
+    private List<Visite> visites;
+    private OnVisiteClickListener listener;
 
-    public VisiteAdapter(Visite[] visites) {
+    public interface OnVisiteClickListener {
+        void onVisiteClick(Visite visite);
+    }
+
+    public VisiteAdapter(List<Visite> visites, OnVisiteClickListener listener) {
         this.visites = visites;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
-    public VisiteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_visite, parent, false);
-        return new VisiteViewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_visite, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VisiteViewHolder holder, int position) {
-        Visite visite = visites[position];
-        holder.dateTextView.setText("Date : " + visite.getDate());
-        holder.motifTextView.setText("Motif : " + visite.getMotif());
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Visite visite = visites.get(position);
+        holder.date.setText("Date : " + visite.getDate());
+        holder.commentaire.setText("Commentaire : " + visite.getCommentaire());
+        holder.motif.setText("Motif : " + visite.getMotifLibelle());
+
+        holder.itemView.setOnClickListener(v -> listener.onVisiteClick(visite));
     }
 
     @Override
     public int getItemCount() {
-        return visites.length;
+        return visites.size();
     }
 
-    static class VisiteViewHolder extends RecyclerView.ViewHolder {
-        TextView dateTextView;
-        TextView motifTextView;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView date, commentaire, motif;
 
-        public VisiteViewHolder(@NonNull View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
-            dateTextView = itemView.findViewById(R.id.textViewDate);
-            motifTextView = itemView.findViewById(R.id.textViewMotif);
+            date = itemView.findViewById(R.id.tvDate);
+            commentaire = itemView.findViewById(R.id.tvCommentaire);
+            motif = itemView.findViewById(R.id.tvMotif);
         }
     }
 }

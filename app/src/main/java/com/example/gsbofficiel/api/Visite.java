@@ -1,14 +1,24 @@
 package com.example.gsbofficiel.api;
 
-public class Visite {
-    private String date;
-    private String commentaire;
-    private Visiteur visiteur;
-    private String praticien;
-    private String motif;
+import com.google.gson.annotations.SerializedName;
+import java.text.SimpleDateFormat;
 
-    // Constructeurs, getters et setters
-    public Visite(String date, String commentaire, Visiteur visiteur, String visite, String praticien, String motif) {
+import java.util.Date;
+
+public class Visite {
+    @SerializedName("_id")
+    private String id;
+    @SerializedName("dateVisite")
+    private Date date;
+    private String commentaire;
+    @SerializedName("visiteurId")
+    private Visiteur visiteur;
+    private Praticien praticien;
+    private Motif motif;
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+    public Visite(Date date, String commentaire, Visiteur visiteur, Praticien praticien, Motif motif) {
         this.date = date;
         this.commentaire = commentaire;
         this.visiteur = visiteur;
@@ -16,11 +26,32 @@ public class Visite {
         this.motif = motif;
     }
 
-    public String getDate() {
+    public Visite(Date date, String commentaire, String visiteurId, String praticienId, String selectedMotifId) {
+        this.date = date;
+        this.commentaire = commentaire;
+        this.visiteur = new Visiteur();
+        this.visiteur.setId(visiteurId);
+        this.praticien = new Praticien();
+        this.praticien.setId(praticienId);
+
+        this.motif = new Motif(); // création d'un nouvel objet Motif
+        this.motif.setId(selectedMotifId); // on lui met l'id qu'on a récupéré
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
@@ -41,19 +72,37 @@ public class Visite {
         this.visiteur = visiteur;
     }
 
-    public String getPraticien() {
+    public Praticien getPraticien() {
         return praticien;
     }
 
-    public void setPraticien(String praticien) {
+    public void setPraticien(Praticien praticien) {
         this.praticien = praticien;
     }
 
-    public String getMotif() {
+    public Motif getMotif() {
         return motif;
     }
 
-    public void setMotif(String motif) {
+    public void setMotif(Motif motif) {
         this.motif = motif;
+    }
+
+    public String getMotifLibelle() {
+        return motif != null ? motif.getLibelle() : "Motif non disponible";
+    }
+
+
+    @Override
+    public String toString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        formatter.setTimeZone(java.util.TimeZone.getTimeZone("UTC")); // <-- on force en UTC
+        String dateStr = (date != null) ? formatter.format(date) : "Date non disponible";
+        String commentaireStr = (commentaire != null) ? commentaire : "Pas de commentaire";
+        String motifStr = (motif != null && motif.getLibelle() != null) ? motif.getLibelle() : "Motif non disponible";
+
+        return "Date : " + dateStr + "\n" +
+                "Commentaire : " + commentaireStr + "\n" +
+                "Motif : " + motifStr;
     }
 }
