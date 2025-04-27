@@ -151,7 +151,7 @@ Les activités dans Android sont responsables de l’interface utilisateur et de
   L’application est conçue pour être facilement évolutive, avec une architecture modulaire (MVVM), permettant l’ajout facile de nouvelles fonctionnalités (ex. exportation de données, ajout de nouveaux frais).
 
 - **Mises à jour de sécurité :**  
-  Surveillance régulière des mises à jour de sécurité pour Firebase, SQLite, et les bibliothèques tierces utilisées dans l’application.
+  Surveillance régulière des mises à jour de sécurité pour l'API, MySQL, et les bibliothèques tierces utilisées dans l’application.
 
 ---
 
